@@ -1,10 +1,14 @@
-
+import {Fragment} from "react"
+import Login from "./component/Login";
+import Signup from "./component/Signup";
+import Dashboard from "./component/dashboard";
 function App() {
-
   return (
-   <div>
-      <h1 className="underline">hello</h1>
-   </div>
+   <Fragment>
+      <Login/>
+      {/* <Signup/>
+      <Dashboard/> */}
+   </Fragment>
   )
 }
 
