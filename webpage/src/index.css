@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* global css */
+@layer base {
+    body {
+        font-family: "Montserrat", Times, serif ;
+        font-size: 14px;
+    }
+}
