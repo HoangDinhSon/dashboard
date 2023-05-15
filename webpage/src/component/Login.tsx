@@ -1,7 +1,7 @@
 //logic
 import { useForm } from "react-hook-form";
 import { useQuery } from "react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // ui
 import { Button } from "@mui/material";
 import { Checkbox } from "@mui/material";
@@ -13,32 +13,35 @@ import iconTwitter from "../assets/iconTwitter.svg";
 
 import axios from "axios";
 
-// interface InputForm {
-//   email: String;
-//   password: String;
-
-// }
+interface InputForm {
+  email: String,
+  password: String,
+}
 
 function Login() {
   const objUseform = useForm();
   const register = objUseform.register;
   const handleSubmit = objUseform.handleSubmit;
-  const errors = objUseform.formState.errors;
 
-  const [dataUser, setData] = useState({});
+
+  const [dataUser, setData] = useState({ email: "", password: "" });
   const [responseUser, setResponseUser] = useState({});
   const [isCreate, setIsCreate] = useState(false);
+  const [alertEmail, setAlertEmail] = useState("");
+  const [alertPassword, setAlertPassword] = useState("");
 
   // post  Api
-  const createData = () => {
-    axios
-      .post("http://streaming.nexlesoft.com:4000/api/auth/signin", dataUser, {
+  const createData = async () => {
+     await axios
+      .post("http://streaming.nexlesoft.com:4000/api/auth/signin", dataUser , {
         headers: {
           "Content-Type": "multipart/form-dat",
         },
       })
       .then((response) => {
+        console.log(response);
         setResponseUser(response);
+        
         return response;
       });
   };
@@ -46,14 +49,30 @@ function Login() {
   if (queryCreate.isSuccess) {
     console.log("post Aip", queryCreate.isSuccess);
   }
+  //validate email,password 
+  const patternEmail =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const patternPassword= /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,64}$/
+    const validateAlert = (input: string, pattern: RegExp, name: string) => {
+    if (input === "" || input === undefined) {
+      if (name === "Email"){setAlertEmail(`${name} is required`);}
+      if (name === "Password"){setAlertPassword(`${name} is required`);}
+      return false;
+    } else if (pattern.test(input)) {
+      if (name === "Email"){setAlertEmail("");}
+      if (name === "Password"){setAlertPassword("");}
+      return true;
+    } else {
+      if (name === "Email"){setAlertEmail(`${name} is not valid`);}
+      if (name === "Password"){setAlertPassword(`${name} is not valid`);}
+      return false;
+    }
+  };
 
-  //: SubmitHandler<InputForm>
   const onSubmit = function (data: any) {
     setData(data);
     setIsCreate(true);
-
     console.log("data", data);
-
     // location.href="http://localhost:5173/";
   };
 
@@ -76,50 +95,43 @@ function Login() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <label htmlFor="loginEmail">
-              <div>
-                <p>
-                  Email{" "}
-                  {errors.email && (
-                    <span className="text-red-600">invalid</span>
-                  )}
-                </p>
+              <div className="relative">
+                <p>Email</p>
                 <input
                   {...register("email", {
-                    required: true,
-                    pattern:
-                      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    onChange: (e) => {
+                      validateAlert(e.target.value, patternEmail, "Email");
+                    },
                   })}
-                  type="email"
+                  type="text"
                   name="email"
                   id="loginEmail"
                   placeholder="   johndoe@gmail.com"
-                  className="h-10 w-full mb-4 rounded-[5px] border-gray-400 border"
+                  className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
+                {<span className="text-red-600 block absolute bottom-3  ">{alertEmail}</span>}
               </div>
             </label>
             <label htmlFor="loginPassword">
-              <div>
+              <div className="relative">
                 <div className="flex justify-between">
                   <span>Password</span>
-                  {errors.password && (
-                    <span className="text-red-600">invalid</span>
-                  )}
                   <a href="#" className="text-[#7367F0]">
-                    {" "}
                     <span>Forgot Password?</span>
                   </a>
                 </div>
                 <input
-                  {...register("password", {
-                    required: true,
-                    maxLength: 20,
-                    minLength: 6,
+                   {...register("password", {
+                    onChange: (e) => {
+                      validateAlert(e.target.value, patternPassword, "Password");
+                    },
                   })}
                   type="password"
                   name="password"
                   id="loginPassword"
-                  className="h-10 w-full mb-[14px] rounded-[5px] border-gray-400 border"
+                  className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
+                 {<span className="text-red-600 block absolute bottom-3">{alertPassword}</span>}
               </div>
             </label>
             <label htmlFor="checkBox">

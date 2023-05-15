@@ -9,7 +9,7 @@ import iconFacebook from "../assets/iconFacebook.svg";
 import iconGit from "../assets/iconGit.svg";
 import iconMail from "../assets/iconMail.svg";
 import iconTwitter from "../assets/iconTwitter.svg";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 interface InputForm {
   firstname: String;
@@ -23,37 +23,81 @@ function Signup() {
   const register = objUseform.register;
   const handleSubmit = objUseform.handleSubmit;
   const errors = objUseform.formState.errors;
-  const [dataForm, setDataForm] = useState({});
 
-  const objMutation = useMutation(
-    (dataForm) =>
-      fetch("https://jsonplaceholder.typicode.com/posts", {
-        method: "POST",
-        body: JSON.stringify(dataForm),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      }),
-    {
-      onSuccess: async (data) => {
-        alert("Post added successfully: " + JSON.stringify(await data.json()));
+  const [dataForm, setDataForm] = useState({
+    firstname: "hoang",
+    lastname: "lam",
+    email: "lam@gmail.com",
+    password: "Hoangthilam@123",
+  });
+  const [isCreate, setIsCreate] = useState(false);
+
+  const [alertEmail, setAlertEmail] = useState("");
+  const [alertPassword, setAlertPassword] = useState("");
+//api
+  const fakeData = {
+    firstname: "hoang",
+    lastname: "lam",
+    email: "lam@gmail.com",
+    password: "Hoangthilam@123",
+  };
+
+  
+  const createRequest = () => {
+   
+  };
+  axios
+    .post("http://streaming.nexlesoft.com:4000/api/auth/signup", fakeData, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "auth",
       },
-      onError: (error) => {
-        console.log(error);
-      },
+    })
+    .then((res) => {
+      console.log("res kiểm tra reponsive nhận api ", res);
+      return res;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  // const objUseQuery = useQuery("post", createRequest, { enabled: isCreate });
+
+  // validate email password
+  const patternEmail =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const patternPassword =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,64}$/;
+  const validateAlert = (input: string, pattern: RegExp, name: string) => {
+    if (input === "" || input === undefined) {
+      if (name === "Email") {
+        setAlertEmail(`${name} is required`);
+      }
+      if (name === "Password") {
+        setAlertPassword(`${name} is required`);
+      }
+      return false;
+    } else if (pattern.test(input)) {
+      if (name === "Email") {
+        setAlertEmail("");
+      }
+      if (name === "Password") {
+        setAlertPassword("");
+      }
+      return true;
+    } else {
+      if (name === "Email") {
+        setAlertEmail(`${name} is not valid`);
+      }
+      if (name === "Password") {
+        setAlertPassword(`${name} is not valid`);
+      }
+      return false;
     }
-  );
-  const mutate = objMutation.mutate;
-  const isLoading = objMutation.isLoading;
-  const error = objMutation.error;
-  if(isLoading){
-    <h1>loadding</h1>
-  }
- 
+  };
 
   const onHandle = function (data: any) {
     setDataForm(data);
-    mutate(data);
+    setIsCreate(true);
     console.log("data", data);
   };
 
@@ -74,7 +118,7 @@ function Signup() {
             className="text-xs mb-4"
           >
             <label htmlFor="inputFirstName">
-              <div>
+              <div className="relative">
                 <p>
                   Firstname<span className="text-[red]">*</span>
                 </p>
@@ -88,13 +132,18 @@ function Signup() {
                   name="firstname"
                   id="inputFirstName"
                   placeholder="   johndoe"
-                  className="h-10 w-full mb-4 rounded-[5px] border-gray-400 border"
+                  className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
+                {errors.firstname && (
+                  <span className="text-red-600 block absolute bottom-3 ">
+                    Firstname is required
+                  </span>
+                )}
               </div>
             </label>
 
             <label htmlFor="inputLastName">
-              <div>
+              <div className="relative">
                 <p>
                   LastName<span className="text-[red]">*</span>
                 </p>
@@ -108,33 +157,43 @@ function Signup() {
                   name="lastname"
                   id="inputLastName"
                   placeholder="   johndoe"
-                  className="h-10 w-full mb-4 rounded-[5px] border-gray-400 border"
+                  className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
+                {errors.lastname && (
+                  <span className="text-red-600 block absolute bottom-3 ">
+                    Lastname is required
+                  </span>
+                )}
               </div>
             </label>
 
             <label htmlFor="inputLogin">
-              <div>
+              <div className="relative">
                 <p>
                   Email <span className="text-[red]">*</span>
                 </p>
                 <input
                   {...register("email", {
-                    required: true,
-                    pattern:
-                      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    onChange: (e) => {
+                      validateAlert(e.target.value, patternEmail, "Email");
+                    },
                   })}
                   type="email"
                   name="email"
                   id="inputLogin"
                   placeholder="   johndoe@gmail.com"
-                  className="h-10 w-full mb-4 rounded-[5px] border-gray-400 border"
+                  className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
+                {
+                  <span className="text-red-600 block absolute bottom-3  ">
+                    {alertEmail}
+                  </span>
+                }
               </div>
             </label>
 
-            <label htmlFor="">
-              <div>
+            <label htmlFor="passwordInput">
+              <div className="relative">
                 <div className="flex justify-between">
                   <span>
                     Password <span className="text-[red]">*</span>
@@ -146,15 +205,24 @@ function Signup() {
                 </div>
                 <input
                   {...register("password", {
-                    required: true,
-                    minLength: 3,
-                    maxLength: 10,
+                    onChange: (e) => {
+                      validateAlert(
+                        e.target.value,
+                        patternPassword,
+                        "Password"
+                      );
+                    },
                   })}
                   type="password"
                   name="password"
-                  id=""
-                  className="h-10 w-full mb-[14px] rounded-[5px] border-gray-400 border"
+                  id="passwordInput"
+                  className="h-10 w-full mb-7 rounded-[5px] border-gray-400 border"
                 />
+                {
+                  <span className="text-red-600 block absolute bottom-3">
+                    {alertPassword}
+                  </span>
+                }
               </div>
             </label>
             <label htmlFor="checkBox">
@@ -185,7 +253,7 @@ function Signup() {
                 fontFamily: "Montserrat",
               }}
             >
-              Login
+              Signup
             </Button>
           </form>
           <div className="mb-[25px]">

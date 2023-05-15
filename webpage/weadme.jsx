@@ -1,64 +1,17 @@
-
-
-import React from "react";
-import ReactDOM from "react-dom/client";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation
-} from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AddPostComponent />
-    </QueryClientProvider>
-  );
-}
-
-function AddPostComponent() {
-  const { mutate, isLoading, error } = useMutation(
-    (post) =>
-      fetch("https://jsonplaceholder.typicode.com/posts", {
-        method: "POST",
-        body: JSON.stringify(post),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8"
-        }
-      }),
-    {
-      onSuccess: async (data) => {
-        alert("Post added successfully: " + JSON.stringify(await data.json()));
-      },
-      onError: (error) => {
-        console.log(error);
-      }
+  // validation for email
+  const validateEmail = () => {
+    const pattern = /^g/;
+    if (dataUser.email === "" || dataUser.email === undefined) {
+      setAlertEmail("Email is required");
+      return false;
+    } else if (pattern.test(dataUser.email)) {
+      console.log("validation true");
+      setAlertEmail("");
+      return true;
+    } else {
+      setAlertEmail("Email is not valid");
+      return false;
     }
-  );
-
-  return (
-    <div>
-      {isLoading ? (
-        <div>Adding Post...</div>
-      ) : (
-        <button
-          onClick={() =>
-            mutate({
-              title: "foo",
-              body: "bar",
-              userId: 1
-            })
-          }
-        >
-          Add Post
-        </button>
-      )}
-      {error && <div>An error occurred: {error.message}</div>}
-    </div>
-  );
-}
-
-// const rootElement = document.getElementById("root");
-// ReactDOM.createRoot(rootElement).render(<App />);
+  };
+ 
+  
