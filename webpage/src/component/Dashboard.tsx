@@ -1,8 +1,11 @@
-import { set, useForm } from "react-hook-form";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import dasboardAvatar from "../assets/dasboardAvatar.svg";
 import dashboardAvatarStatus from "../assets/dashboardAvatarStatus.svg";
+import dasboardPower from "../assets/dasboardPower.svg"
 import dashboardCenter from "../assets/dashboardCenter.svg";
 import { useState } from "react";
+import { useMutation } from "react-query";
 
 function Dashboard() {
   const objUseForm = useForm();
@@ -10,20 +13,61 @@ function Dashboard() {
   const handleSubmit = objUseForm.handleSubmit;
   const [toggle, setToggle] = useState(false);
 
+  // call api có chức năng Logout
+  const logoutUser = () => {
+    // lấy token
+    let token: any = "";
+    const getTokenFromLocalStorage = () => {
+      const tokenJson = localStorage.getItem("user");
+      if (tokenJson) {
+        token = JSON.parse(tokenJson);
+      }
+    };
+    getTokenFromLocalStorage();
+    token ? mutationLogin.mutate(token) : {};
+  };
+  const mutationLogin = useMutation({
+    mutationFn: (token) => {
+      return axios
+        .post("http://streaming.nexlesoft.com:4000/api/auth/logout", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .catch((error) => {
+          error;
+        });
+    },
+  });
+  if (mutationLogin.isSuccess) {
+    console.log("vào day để xoa localstorage");
+    localStorage.removeItem("user");
+    window.location.href="http://localhost:4000/login";
+  }
+
+  const handleLogout = () => {
+    logoutUser();
+  };
   const onSubmit = (dataSubmit: any) => {
     dataSubmit === "true" ? (dataSubmit = true) : false;
     setToggle(!toggle);
   };
+
   const menuUser = () => {
-   return ( toggle && (
-      <section>
-        <div className="w-52 h-11 bg-red-400 absolute  top-62  right-0">
-          <div>
-            <button type="submit">Logout</button>
+    return (
+      toggle && (
+        <section>
+          <div className="w-[150px] h-[38px] absolute  top-62  right-8  bg-[white] rounded border-solid border-[#E9EAEB] border pt-2 pr-2">
+            <div className="flex justify-end ">
+              <button type="submit" onClick={handleLogout} className="text-[#6E6B7B]">
+                Logout
+              </button>
+              <img src={dasboardPower} alt="" className="ml-2" />
+            </div>
           </div>
-        </div>
-      </section>
-    ))
+        </section>
+      )
+    );
   };
 
   return (

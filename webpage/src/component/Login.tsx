@@ -1,7 +1,7 @@
 //logic
 import { useForm } from "react-hook-form";
-import { useQuery } from "react-query";
-import { useEffect, useState } from "react";
+import {  useMutation} from "react-query";
+import {  useState } from "react";
 // ui
 import { Button } from "@mui/material";
 import { Checkbox } from "@mui/material";
@@ -13,67 +13,69 @@ import iconTwitter from "../assets/iconTwitter.svg";
 
 import axios from "axios";
 
-interface InputForm {
-  email: String,
-  password: String,
-}
-
 function Login() {
+  
   const objUseform = useForm();
   const register = objUseform.register;
   const handleSubmit = objUseform.handleSubmit;
 
-
-  const [dataUser, setData] = useState({ email: "", password: "" });
-  const [responseUser, setResponseUser] = useState({});
-  const [isCreate, setIsCreate] = useState(false);
   const [alertEmail, setAlertEmail] = useState("");
   const [alertPassword, setAlertPassword] = useState("");
+  
 
-  // post  Api
-  const createData = async () => {
-     await axios
-      .post("http://streaming.nexlesoft.com:4000/api/auth/signin", dataUser , {
-        headers: {
-          "Content-Type": "multipart/form-dat",
-        },
-      })
-      .then((response) => {
-        console.log(response);
-        setResponseUser(response);
-        
-        return response;
-      });
-  };
-  const queryCreate = useQuery(["postUser"], createData, { enabled: isCreate });
-  if (queryCreate.isSuccess) {
-    console.log("post Aip", queryCreate.isSuccess);
+  //  Api there is Not accour 
+  const mutation = useMutation({
+    mutationFn: (dataUser)=>{
+     return axios.post("http://streaming.nexlesoft.com:4000/api/auth/signin",dataUser ).then((res)=>{
+      localStorage.setItem("user", JSON.stringify(res.data.token))
+      location.href="http://localhost:4000/";
+     })
+    },
+  })
+  // Api there is accout 
+  
+  if (localStorage.getItem("user")){
+    console.log("có user trong local mới gọi");
+    location.href="http://localhost:4000/";
   }
-  //validate email,password 
+
+
   const patternEmail =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  const patternPassword= /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,64}$/
-    const validateAlert = (input: string, pattern: RegExp, name: string) => {
+  const patternPassword =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,18}$/;
+  const validateAlert = (input: string, pattern: RegExp, name: string) => {
     if (input === "" || input === undefined) {
-      if (name === "Email"){setAlertEmail(`${name} is required`);}
-      if (name === "Password"){setAlertPassword(`${name} is required`);}
+      if (name === "Email") {
+        setAlertEmail(`${name} is required`);
+      }
+      if (name === "Password") {
+        setAlertPassword(`${name} is required`);
+      }
       return false;
     } else if (pattern.test(input)) {
-      if (name === "Email"){setAlertEmail("");}
-      if (name === "Password"){setAlertPassword("");}
+      if (name === "Email") {
+        setAlertEmail("");
+      }
+      if (name === "Password") {
+        setAlertPassword("");
+      }
       return true;
     } else {
-      if (name === "Email"){setAlertEmail(`${name} is not valid`);}
-      if (name === "Password"){setAlertPassword(`${name} is not valid`);}
+      if (name === "Email") {
+        setAlertEmail(`${name} is not valid`);
+      }
+      if (name === "Password") {
+        setAlertPassword(`${name} is not valid`);
+      }
       return false;
     }
   };
+  
 
   const onSubmit = function (data: any) {
-    setData(data);
-    setIsCreate(true);
-    console.log("data", data);
-    // location.href="http://localhost:5173/";
+   mutation.mutate(data);
+   
   };
 
   return (
@@ -109,7 +111,11 @@ function Login() {
                   placeholder="   johndoe@gmail.com"
                   className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
-                {<span className="text-red-600 block absolute bottom-3  ">{alertEmail}</span>}
+                {
+                  <span className="text-red-600 block absolute bottom-3  ">
+                    {alertEmail}
+                  </span>
+                }
               </div>
             </label>
             <label htmlFor="loginPassword">
@@ -121,9 +127,13 @@ function Login() {
                   </a>
                 </div>
                 <input
-                   {...register("password", {
+                  {...register("password", {
                     onChange: (e) => {
-                      validateAlert(e.target.value, patternPassword, "Password");
+                      validateAlert(
+                        e.target.value,
+                        patternPassword,
+                        "Password"
+                      );
                     },
                   })}
                   type="password"
@@ -131,7 +141,11 @@ function Login() {
                   id="loginPassword"
                   className="h-10 w-full mb-8 rounded-[5px] border-gray-400 border"
                 />
-                 {<span className="text-red-600 block absolute bottom-3">{alertPassword}</span>}
+                {
+                  <span className="text-red-600 block absolute bottom-3">
+                    {alertPassword}
+                  </span>
+                }
               </div>
             </label>
             <label htmlFor="checkBox">
