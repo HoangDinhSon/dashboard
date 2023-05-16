@@ -1,7 +1,7 @@
 //logic
 import { useForm } from "react-hook-form";
-import {  useMutation} from "react-query";
-import {  useState } from "react";
+import { useMutation } from "react-query";
+import { useState } from "react";
 // ui
 import { Button } from "@mui/material";
 import { Checkbox } from "@mui/material";
@@ -14,31 +14,30 @@ import iconTwitter from "../assets/iconTwitter.svg";
 import axios from "axios";
 
 function Login() {
-  
   const objUseform = useForm();
   const register = objUseform.register;
   const handleSubmit = objUseform.handleSubmit;
 
   const [alertEmail, setAlertEmail] = useState("");
   const [alertPassword, setAlertPassword] = useState("");
-  
 
-  //  Api there is Not accour 
+  //  Api there is Not accour
   const mutation = useMutation({
-    mutationFn: (dataUser)=>{
-     return axios.post("http://streaming.nexlesoft.com:4000/api/auth/signin",dataUser ).then((res)=>{
-      localStorage.setItem("user", JSON.stringify(res.data.token))
-      location.href="http://localhost:4000/";
-     })
+    mutationFn: (dataUser) => {
+      return axios
+        .post("http://streaming.nexlesoft.com:4000/api/auth/signin", dataUser)
+        .then((res) => {
+          localStorage.setItem("user", JSON.stringify(res.data.token));
+          location.href = "http://localhost:4000/";
+        });
     },
-  })
-  // Api there is accout 
-  
-  if (localStorage.getItem("user")){
-    console.log("có user trong local mới gọi");
-    location.href="http://localhost:4000/";
-  }
+  });
+  // Api there is accout
 
+  if (localStorage.getItem("user")) {
+    console.log("có user trong local mới gọi");
+    location.href = "http://localhost:4000/";
+  }
 
   const patternEmail =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -71,20 +70,18 @@ function Login() {
       return false;
     }
   };
-  
 
   const onSubmit = function (data: any) {
-   mutation.mutate(data);
-   
+    mutation.mutate(data);
   };
 
   return (
-    <div className=" flex w-full h-screen font-[Montserrat] text-sm ">
-      <div className="container_left w-[66%] h-full">
+    <div className=" flex w-full h-screen font-[Montserrat] text-sm  bg-[#F8F8F8]">
+      <div className="container_left w-[66%] h-full flex justify-center items-center">
         <img src={loginLef} alt="" className="" />
       </div>
-      <div className="container_right w-[34%] h-full text-[#6E6B7B]">
-        <div className="mt-[27%] ml-[15%] mr-[15%]">
+      <div className="container_right w-[34%]   h-full text-[#6E6B7B] bg-white flex flex-col justify-center">
+        <div className=" ml-[15%] mr-[15%]">
           <h1 className="text-lg text-[#5E5873] font-medium mb-[10px]">
             Welcome to Entrance Test Interview!
           </h1>
@@ -98,7 +95,7 @@ function Login() {
           >
             <label htmlFor="loginEmail">
               <div className="relative">
-                <p>Email</p>
+                <p>Email <span className="text-[red]">*</span></p>
                 <input
                   {...register("email", {
                     onChange: (e) => {
@@ -121,7 +118,7 @@ function Login() {
             <label htmlFor="loginPassword">
               <div className="relative">
                 <div className="flex justify-between">
-                  <span>Password</span>
+                  <span>Password <span className="text-[red]">*</span></span>
                   <a href="#" className="text-[#7367F0]">
                     <span>Forgot Password?</span>
                   </a>
@@ -179,10 +176,10 @@ function Login() {
               Login
             </Button>
           </form>
-          <div className="mb-[25px]">
-            <a href="http://">New on our platform?</a>
-            <a href="http://" className="text-[#7367F0] ">
-              Create an account
+          <div className="mb-[25px] " >
+            <a href="http://localhost:4000/signup" className="block w-[98%] mx-auto  text-center">
+              New on our platform?{" "}
+              <span className="text-[#7367F0] ">Create an account</span>
             </a>
           </div>
           <div className="relative mb-6 ">

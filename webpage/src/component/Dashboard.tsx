@@ -2,7 +2,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import dasboardAvatar from "../assets/dasboardAvatar.svg";
 import dashboardAvatarStatus from "../assets/dashboardAvatarStatus.svg";
-import dasboardPower from "../assets/dasboardPower.svg"
+import dasboardPower from "../assets/dasboardPower.svg";
 import dashboardCenter from "../assets/dashboardCenter.svg";
 import { useState } from "react";
 import { useMutation } from "react-query";
@@ -12,6 +12,14 @@ function Dashboard() {
   const register = objUseForm.register;
   const handleSubmit = objUseForm.handleSubmit;
   const [toggle, setToggle] = useState(false);
+
+  // kiểm tra xem locosorage có key user hay không
+  let token: any = "";
+  token = localStorage.getItem("user");
+  if (!token) {
+    window.location.href = "http://localhost:4000/login"
+  }
+  
 
   // call api có chức năng Logout
   const logoutUser = () => {
@@ -42,7 +50,7 @@ function Dashboard() {
   if (mutationLogin.isSuccess) {
     console.log("vào day để xoa localstorage");
     localStorage.removeItem("user");
-    window.location.href="http://localhost:4000/login";
+    window.location.href = "http://localhost:4000/login";
   }
 
   const handleLogout = () => {
@@ -57,9 +65,13 @@ function Dashboard() {
     return (
       toggle && (
         <section>
-          <div className="w-[150px] h-[38px] absolute  top-62  right-8  bg-[white] rounded border-solid border-[#E9EAEB] border pt-2 pr-2">
+          <div onClick={handleLogout}  className="w-[150px] h-[38px] absolute  top-62  right-8  bg-[white] rounded border-solid border-[#E9EAEB] border pt-2 pr-2 cursor-pointer">
             <div className="flex justify-end ">
-              <button type="submit" onClick={handleLogout} className="text-[#6E6B7B]">
+              <button
+                type="submit"
+                
+                className="text-[#6E6B7B]"
+              >
                 Logout
               </button>
               <img src={dasboardPower} alt="" className="ml-2" />
